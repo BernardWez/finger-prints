@@ -49,10 +49,10 @@ def imageImport(img_dir):
         
     return np.array(data)
 
-def genderTrainTestSplit(all_data, train_val_size, test_size, val_split=0.3):
-    '''Returns a train, validation, and test split for the gender dataset. 
-       Note: - train_val_size and test_size indicate the amount of images per class (e.g. test_size 200 --> 200 female + 200 male)
-             - training-validation split is determined by val_split (e.g 0.3 result in a 70% train and 30% validation split)'''
+def genderTrainTestSplit(all_data):
+    '''
+    Returns X and y for gender data using undersampling
+    '''
     
     data = [(datapoint[0], datapoint[1][0]) for datapoint in all_data]
     random.shuffle(data)
@@ -66,20 +66,12 @@ def genderTrainTestSplit(all_data, train_val_size, test_size, val_split=0.3):
         else:
             female_data.append(data[i])
     
-    # Grab training data
-    train_and_val_data = female_data[:train_val_size] + male_data[:train_val_size]
-    random.shuffle(train_and_val_data)
     
-    # Split training data into x and y
-    x, y = zip(*train_and_val_data)
+    balanced = female_data + male_data[:len(female_data)]
+    random.shuffle(balanced)
     
-    # Make a train/validation split
-    X_train, X_val, y_train, y_val = train_test_split(x, y, test_size=val_split, shuffle=True, stratify=y)
+    x, y = zip(*balanced)
     
-    # Grab testing data
-    test_data = female_data[:test_size] + male_data[:test_size]
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.186991869918, shuffle=True, stratify=y)
     
-    # Make a train/test split
-    X_test, y_test = zip(*test_data)
-       
-    return np.array(X_train), np.array(X_val), np.array(X_test), np.array(y_train), np.array(y_val), np.array(y_test)
+    return np.array(X_train), np.array(X_test), np.array(y_train), np.array(y_test)
