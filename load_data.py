@@ -42,10 +42,12 @@ def imageImport(img_dir):
         # Read the image from the image path
         img_array = cv2.imread(img_path, 0)
         
-        img_resize = cv2.resize(img_array, (96, 103)) / 255
+        img_resize = cv2.resize(img_array, (244, 244)) / 255
+        
+        stacked_img = np.stack((img_resize,)*3, axis=-1)
         
         # Append image array and image label
-        data.append((img_resize, img_labels))
+        data.append((stacked_img, img_labels))
         
     return np.array(data)
 
