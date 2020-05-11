@@ -4,7 +4,6 @@
  
  
 ## Results
-
 <table>
 <thead>
   <tr>
