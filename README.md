@@ -26,7 +26,7 @@
     <td class="tg-0pky">Regular</td>
     <td class="tg-0pky">Enhanced</td>
     <td class="tg-0pky">Regular</td>
-    <td class="tg-0pky"><span style="font-weight:400;font-style:normal">Enhanced</span><br><br></td>
+    <td class="tg-0pky">Enhanced</span><br><br></td>
   </tr>
 </thead>
 <tbody>
