@@ -38,7 +38,7 @@
   </tr>
   <tr>
     <td class="tg-0pky">ResNet-18</td>
-    <td class="tg-0pky">61.74%</td>
+    <td class="tg-0pky">__61.74%__</td>
     <td class="tg-0pky">64.35%</td>
     <td class="tg-0pky">64.78%</td>
     <td class="tg-0pky">65.87%</td>
