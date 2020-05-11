@@ -21,7 +21,7 @@
 <tbody>
   <tr>
     <td>VGG-16</td>
-    <td>68.91%</td>
+   <td><b>68.91%</td>
     <td>66.91%</td>
     <td>64.78%</td>
     <td>67.39%</td>
@@ -36,9 +36,9 @@
   <tr>
     <td>ResNet-34</td>
     <td>66.09%</td>
-    <td>68.33%</td>
+    <td><b>68.33%</b></td>
     <td>64.78%</td>
-    <td>68.48%</td>
+    <td><b>68.48%</b></td>
   </tr>
 </tbody>
 </table>
