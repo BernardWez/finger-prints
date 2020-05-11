@@ -15,7 +15,7 @@
     <td>Regular</td>
     <td>Enhanced</td>
     <td>Regular</td>
-    <td><span style="font-weight:400;font-style:normal">Enhanced</span><br><br></td>
+    <td>Enhanced</td>
   </tr>
 </thead>
 <tbody>
@@ -42,25 +42,4 @@
   </tr>
 </tbody>
 </table>
-    <td class="tg-0pky">VGG-16</td>
-    <td class="tg-fymr">68.91%</td>
-    <td class="tg-0pky">66.91%</td>
-    <td class="tg-0pky">64.78%</td>
-    <td class="tg-0pky">67.39%</td>
-  </tr>
-  <tr>
-    <td class="tg-0pky">ResNet-18</td>
-    <td class="tg-0pky">61.74%</td>
-    <td class="tg-0pky">64.35%</td>
-    <td class="tg-0pky">64.78%</td>
-    <td class="tg-0pky">65.87%</td>
-  </tr>
-  <tr>
-    <td class="tg-0pky">ResNet-34</td>
-    <td class="tg-0pky">66.09%</td>
-    <td class="tg-fymr">68.33%</td>
-    <td class="tg-0pky">64.78%</td>
-    <td class="tg-fymr">68.48%</td>
-  </tr>
-</tbody>
-</table>
+    
