@@ -121,7 +121,7 @@ Evaluating the best performing model resulted in the following confusion matrix:
 
 ![](confusion-matrix.PNG)
 
-Notice how this model is slightly biased towards female predictions. It classifies an image as female on 257 occasions and as male on 203 occaissions. As a result we find that the precision for the female class is reduced and the recall is higher in comparison to the male class (see classification report below). However, this is not an issue for this particular classification task considering we are using a balanced dataset and do not necessarily have a different cost for False Negative or False Positive classifications.
+Notice how this model is slightly biased towards female predictions. It classifies an image as female on 257 occasions and as male on 203 occasions. As a result we find that the precision for the female class is reduced and the recall is higher in comparison to the male class (see classification report below). However, this is not an issue for this particular classification task considering we are using a balanced dataset and do not necessarily have a different cost for False Negative or False Positive classifications.
 
 #### Classification Report
 Evaluating the best performing model resulted in the following classification report:
