@@ -4,11 +4,21 @@
 
 ## Methods
 ### Pre-processing
-insert pictures regular images
-insert pictures enhanced image
+
+Below an example of what an enhanced image look like after applying the Gabor filters.
+
+|            Regular              |            Enhanced              |
+|:-------------------------------:|:--------------------------------:|
+|![](example-images/regular-2.BMP)|![](example-images/enhanced-2.BMP)|
  
 ### Data augmentation
-insert examples of augmented images
+
+
+Below an example what the data augmentation procedure looks like for an regular image as well as an enhanced image.
+
+|            Regular              |             Regular Augmented             |             Enhanced             |               Enhanced Augmented             |
+|:-------------------------------:|:-----------------------------------------:|:--------------------------------:|:---------------------------------------------------:|
+|![](example-images/regular-2.BMP)|![](example-images/regular-augmented-2.bmp)|![](example-images/enhanced-2.BMP)|![](example-images/enhanced-augmented-2.bmp)|
 
 ### Tuning
 explain hyperopt process and what parameters are optimized for
