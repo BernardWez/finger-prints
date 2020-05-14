@@ -116,6 +116,8 @@ The best performing model is VGG-16 trained on the regular dataset using data au
 </tbody>
 </table>
 
+Note: complete evaluation for each model can be found in the *notebooks/evaluating-models/evaluation* notebook. (This contains the test accuracy, confusion matrix, and classification report for each model)
+
 #### Confusion matrix of best performing model 
 Evaluating the best performing model resulted in the following confusion matrix:
 
