@@ -20,7 +20,7 @@ Below an example of what an enhanced image look like after applying the Gabor fi
 
 ### Experimental set-up
 
-Both the enhanced and the regular dataset were used to train each of the model mentioned above. Furthermore, for both datasets models were trained with and without data augmentation (see augmentation examples below). In total 12 models were trained. During the training process [hyperopt](https://github.com/hyperopt/hyperopt) was leveraged to apply Bayesian optimization. The tuning process and hyperparameter settings will be discussed below.
+Both the enhanced and the regular dataset were used to train each of the model mentioned above. Furthermore, for both datasets models were trained with and without data augmentation (see augmentation examples below). In total 12 models were trained. During the training process [`hyperopt`](https://github.com/hyperopt/hyperopt) was leveraged to apply Bayesian optimization. The tuning process and hyperparameter settings will be discussed below.
 
 ### Data augmentation
 
@@ -43,12 +43,13 @@ For tuning the models, 20 trials were used and each trial consisted of 50 epochs
 * `learning_rate`
 
 After finding the best parameters with `hyperopt`, manual tuning was applied to investigate if training for 100 epochs would improve results or to correct for overfitting. The exact training process and final parameter settings for all models can be found in the notebooks listed in the *notebooks/training-models* directory.
- 
-### Evaluation
-accuracy / confusion matrix (explain precision and recall)
- 
- 
+
 ## Results 
+
+The table below contains the validation and test accuracies for all of the trained models.
+
+The best performing model is VGG-16 trained on the regular dataset using data augmentation with 69.50% accuracy.
+
 <table>
 <thead>
   <tr>
@@ -76,9 +77,9 @@ accuracy / confusion matrix (explain precision and recall)
     <td>Test</td>
   </tr>
   <tr>
-    <td>VGG-16</td>
+    <td><b>VGG-16</b></td>
     <td>69.50%</td>
-    <td>68.91%</td>
+    <td><b>68.91%</b></td>
     <td>69.67%</td>
     <td>66.91%</td>
     <td>70.00%</td>
@@ -111,11 +112,12 @@ accuracy / confusion matrix (explain precision and recall)
 </tbody>
 </table>
 
-insert confusion matrix of best performing model
 #### Confusion matrix of best performing model 
 Evaluating the best performing model resulted in the following confusion matrix:
 
 ![](confusion-matrix.PNG)
+
+Notice how this model
 
 #### Classification Report
 Evaluating the best performing model resulted in the following classification report:
