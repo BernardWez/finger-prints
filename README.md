@@ -4,7 +4,7 @@
 
 The Sokoto Coventry Fingerprint Dataset (SOCOFing), available at https://www.kaggle.com/ruizgara/socofing, was used for this project. The aim of this project was to use fingerprint images to for a gender classification task. Transfer learning was applied using the following architectures: [VGG-16](https://keras.io/api/applications/vgg/#vgg16-function), [ResNet-18](https://github.com/qubvel/classification_models), and [ResNet-34](https://github.com/qubvel/classification_models).
 
-The goal was to improve upon the 75.2% accuracy achieved by [(Shehu et al., 2018)](https://ieeexplore.ieee.org/document/8614212). To find improvements additional pre-processings steps are taken, data augmentation is applied, and bayesian optimization is used to find the best hyperparameters. 
+The goal was to improve upon the 75.2% accuracy achieved by [(Shehu et al., 2018)](https://ieeexplore.ieee.org/document/8614212). To find improvements additional pre-processings steps are taken, data augmentation is applied, and bayesian optimization is used to find the best hyperparameters.
 
 ## Procedure
 
@@ -17,6 +17,10 @@ Below an example of what an enhanced image look like after applying the Gabor fi
 |            Regular              |            Enhanced              |
 |:-------------------------------:|:--------------------------------:|
 |![](example-images/regular-2.BMP)|![](example-images/enhanced-2.BMP)|
+
+### Dataset - training, validation, and test split
+
+The dataset consists out of 6,000 fingerprint images from 600 people. From these images, 4770 belong to male subjects and 1230 to female subjects. Undersampling has been applied to create a balanced data set containing 1230 images for both classes. This balanced dataset is divided in a training, validation, and test split with 700, 300, and 230 images of each class respectively. 
 
 ### Experimental set-up
 
@@ -48,7 +52,7 @@ After finding the best parameters with `hyperopt`, manual tuning was applied to 
 
 The table below contains the validation and test accuracies for all of the trained models.
 
-The best performing model is VGG-16 trained on the regular dataset using data augmentation with 69.50% accuracy.
+The best performing model is VGG-16 trained on the regular dataset using data augmentation with 68.91% accuracy.
 
 <table>
 <thead>
@@ -117,7 +121,7 @@ Evaluating the best performing model resulted in the following confusion matrix:
 
 ![](confusion-matrix.PNG)
 
-Notice how this model
+Notice how this model is slightly biased towards female predictions. It classifies an image as female on 257 occaissions and as male on 203 occaissions. As a result we find that the precision for the female class is reduced and the recall is higher in comparison to the male class (see classification report below). However, this is not an issue for this particular classification task considering we are using a balanced dataset and do not necessarily have a different cost for False Negative or False Positive classifications.
 
 #### Classification Report
 Evaluating the best performing model resulted in the following classification report:
@@ -126,3 +130,5 @@ Evaluating the best performing model resulted in the following classification re
 |------|---------|------|--------|-------|
 |female|   0.67  | 0.75 |  0.71  |  230  |
 |male  |   0.71  | 0.63 |  0.67  |  230  |
+
+
