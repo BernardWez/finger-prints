@@ -81,3 +81,15 @@ accuracy / confusion matrix (explain precision and recall)
 </table>
 
 insert confusion matrix of best performing model
+#### Confusion matrix of best performing model 
+Evaluating the best performing model resulted in the following confusion matrix:
+
+![](confusion-matrix.PNG)
+
+#### Classification Report
+Evaluating the best performing model resulted in the following classification report:
+
+|      |precision|recall|f1-score|support|
+|------|---------|------|--------|-------|
+|female|   0.67  | 0.75 |  0.71  |  230  |
+|male  |   0.71  | 0.63 |  0.67  |  230  |
