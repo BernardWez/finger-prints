@@ -1,6 +1,8 @@
-# Gender classification based on finger print images
+# Gender classification based on fingerprint images
 
-## Intro
+## Description
+
+The Sokoto Coventry Fingerprint Dataset (SOCOFing), available at https://www.kaggle.com/ruizgara/socofing, was used for this project. The aim of the project was to use fingerprint images to for a gender classification task. Transfer learning was applied using the following architectures: [VGG-16](https://keras.io/api/applications/vgg/#vgg16-function), [ResNet-18](https://github.com/qubvel/classification_models), and [ResNet-34](https://github.com/qubvel/classification_models). 
 
 ## Methods
 ### Pre-processing
