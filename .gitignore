@@ -1,5 +1,6 @@
 
-*.BMP
+data
+
 *.hdf5
 *.rar
 .ipynb_checkpoints/transfer_notebook-checkpoint.ipynb
