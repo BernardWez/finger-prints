@@ -7,3 +7,6 @@
 .ipynb_checkpoints/load_data-checkpoint.py
 __pycache__/load_data.cpython-37.pyc
 __pycache__/
+
+# Jupyter Notebook
+.ipynb_checkpoints
