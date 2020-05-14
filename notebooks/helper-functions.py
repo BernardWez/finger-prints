@@ -1,39 +1,25 @@
-# Imports
-from sklearn.metrics import confusion_matrix, plot_confusion_matrix, classification_report
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-import itertools
-
 import os
-import cv2
+import itertools
 import random
+from glob import glob
 import numpy as np
-
-import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, plot_confusion_matrix, classification_report
 
-import keras
-from keras import layers, regularizers, optimizers
-from keras.applications.resnet50 import ResNet50
-from keras import layers, models, regularizers, optimizers
-from keras import backend as K
-from keras.preprocessing.image import ImageDataGenerator
 from keras.applications import VGG16
-from keras.layers import Flatten, Dense, Dropout, GlobalAveragePooling2D
 from keras.models import Model, Sequential
-from keras.wrappers.scikit_learn import KerasClassifier, KerasRegressor
-from keras.preprocessing import image
-from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.preprocessing.image import ImageDataGenerator
+from keras import layers, models, regularizers, optimizers
+from keras.layers import Flatten, Dense, Dropout, GlobalAveragePooling2D
+from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
-
+from keras_tqdm import TQDMNotebookCallback
 from hyperopt import hp, fmin, tpe, STATUS_OK, STATUS_FAIL, Trials, space_eval, rand
-from keras_tqdm import TQDMNotebookCallback 
 
+# Evaluation functions
 def get_confusion_matrix(y_true, y_pred, cmap='Blues', normalize=False):
-    """Returns the confusion matrix for a given model"""
-
+    """Returns the confusion matrix for a given model."""
     # Create confusion matrix
     cm = confusion_matrix(y_true, y_pred)
 
@@ -43,21 +29,14 @@ def get_confusion_matrix(y_true, y_pred, cmap='Blues', normalize=False):
     # Plot confusion matrix
     plot_confusion_matrix(cm, target_names, cmap='Blues', normalize=normalize)
 
-
     print('Classification Report \n', classification_report(y_true, y_pred, labels=[0, 1], target_names=target_names))
 
     return cm
 
-
-
-# https://www.kaggle.com/grfiv4/plot-a-confusion-matrix
-def plot_confusion_matrix(cm,
-                          target_names,
-                          title='Confusion matrix',
-                          cmap=None,
-                          normalize=True):
+# Source code from: https://www.kaggle.com/grfiv4/plot-a-confusion-matrix
+def plot_confusion_matrix(cm, target_names, title='Confusion matrix', cmap=None, normalize=True):
     """
-    given a sklearn confusion matrix (cm), make a nice plot
+    Given a sklearn confusion matrix (cm) create confusion matrix plot.
 
     Arguments
     ---------
@@ -82,16 +61,11 @@ def plot_confusion_matrix(cm,
                           normalize    = True,                # show proportions
                           target_names = y_labels_vals,       # list of names of the classes
                           title        = best_estimator_name) # title of graph
-
     Citiation
     ---------
     http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
 
     """
-
-    accuracy = np.trace(cm) / float(np.sum(cm))
-    misclass = 1 - accuracy
-
     if cmap is None:
         cmap = plt.get_cmap('Blues')
 
@@ -108,7 +82,6 @@ def plot_confusion_matrix(cm,
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
 
-
     thresh = cm.max() / 1.5 if normalize else cm.max() / 2
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
         if normalize:
@@ -120,14 +93,11 @@ def plot_confusion_matrix(cm,
                      horizontalalignment="center",
                      color="white" if cm[i, j] > thresh else "black")
     
-    plt.axhline(y=0.5, color='b', linestyle='-')
-    plt.grid(b=None)
     plt.tight_layout()
     plt.ylabel('True label', fontsize=16)
-    # plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass), fontsize=16)
     plt.xlabel('Predicted label', fontsize=16)
     plt.show()
-  
+ 
 def evaluate_model(model, generator, directory, batch_size):
     """
     Returns predictions and true labels and prints the confusion matrix and classification report.
@@ -142,32 +112,40 @@ def evaluate_model(model, generator, directory, batch_size):
 
     batch_size: batch_size used in the training process
     """
+    # Create prediction generator
+    predict_generator = generator.flow_from_directory(directory, target_size=(224, 224), batch_size=batch_size, class_mode='binary', shuffle=False)
 
-    predict_generator = generator.flow_from_directory(directory, target_size=(224,224), batch_size=batch_size, class_mode='binary', shuffle=False)
-
+    # Make predictions
     predictions = model.predict_generator(predict_generator, steps=len(predict_generator))
 
     # Encodes the predictions as either 0 or 1
     y_pred = [1 if pred > 0.5 else 0 for pred in predictions]
     y_true = predict_generator.classes
 
-    cm = get_confusion_matrix(y_true, y_pred)
+    # Print confusion matrix and the classification report
+    get_confusion_matrix(y_true, y_pred)
+    loss, accuracy = model.evaluate_generator(predict_generator, steps=len(predict_generator))
+
+    print()
+    print(f'Loss: {loss:.3f}')
+    print(f'Accuracy: {accuracy:.2%}')
 
     return y_pred, y_true
 
+# Plotting functions
 def plotHistory(History):
-    '''Generates two plots: (1) the train accuracy vs. validation accuracy and (2) train loss vs. validation loss.'''
-    sns.set(style='darkgrid', rc={'figure.figsize':(14,4)})
+    '''Generates two plots of the training process: (1) the train accuracy vs. validation accuracy and (2) train loss vs. validation loss.'''
+    sns.set(style='darkgrid', rc={'figure.figsize': (14, 4)})
     data = History.history
     
     acc = data['accuracy']
     val_acc = data['val_accuracy']
-    epochs = range(1, len(acc)+1)
+    epochs = range(1, len(acc) + 1)
     
     loss = data['loss']
     val_loss = data['val_loss']
     
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14,4))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 4))
 
     fig.suptitle('Train set vs. validation set', fontsize=16)
     
@@ -181,18 +159,19 @@ def plotHistory(History):
     ax2.set_title('Loss', fontsize=14)
     ax2.set_xlabel('Epoch')
     
-     # Add vertical line where accuracy is maximal
-    ax1.axvline(x=val_acc.index(max(val_acc))+1, color='dimgrey', linestyle='--', label='max acc')
-    ax2.axvline(x=val_loss.index(min(val_loss))+1, color='dimgrey', linestyle='--', label='min loss')
+    # Add vertical line where accuracy is maximal
+    ax1.axvline(x=val_acc.index(max(val_acc)) + 1, color='dimgrey', linestyle='--', label='max acc')
+    ax2.axvline(x=val_loss.index(min(val_loss)) + 1, color='dimgrey', linestyle='--', label='min loss')
     
     ax1.legend()
     ax2.legend()
 
     plt.show()
-    print('After {} epochs the maximum validation accuracy is {:.2%}'.format(val_acc.index(max(val_acc))+1, max(val_acc)))
-    print('After {} epochs the maximum validation loss is {:.2f}'.format(val_loss.index(min(val_loss))+1, min(val_loss)))
+    print('After {} epochs the maximum validation accuracy is {:.2%}'.format(val_acc.index(max(val_acc)) + 1, max(val_acc)))
+    print('After {} epochs the maximum validation loss is {:.2f}'.format(val_loss.index(min(val_loss)) + 1, min(val_loss)))
 
-def plot_images(generator, title='Example fingerprint images'):    
+def plot_images(generator, title='Example fingerprint images'):
+    '''Plots 5 image examples given a generator'''
     fig, axes = plt.subplots(1, 5, figsize=(17, 5))
     
     for idx, ax in enumerate(axes):
@@ -204,21 +183,22 @@ def plot_images(generator, title='Example fingerprint images'):
     
     fig.suptitle(title, fontsize=20)
 
+# Functions for building models
 def buildVGG16(augment=False):
     """
     Returns pre-trained VGG16 model with imagenet weights and corresponding datagenerators
     """
     base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
     
-    train_datagen = ImageDataGenerator(rescale=1./255,
-                                   shear_range=0.2,
-                                   zoom_range=0.05,
-                                   width_shift_range=0.2,
-                                   height_shift_range=0.2,
-                                   fill_mode='constant', 
-                                   cval=255)
+    train_datagen = ImageDataGenerator(rescale=(1. / 255),
+                                       shear_range=0.2,
+                                       zoom_range=0.05,
+                                       width_shift_range=0.2,
+                                       height_shift_range=0.2,
+                                       fill_mode='constant',
+                                       cval=255)
 
-    test_datagen = ImageDataGenerator(rescale=1./255)
+    test_datagen = ImageDataGenerator(rescale=1. / 255)
 
     if augment:
         return base_model, train_datagen, test_datagen
@@ -233,22 +213,21 @@ def buildResNet(structure, augment=False):
 
     if structure == 'ResNet-18':
 
-      ResNet18, preprocess_input = Classifiers.get('resnet18')
+        ResNet18, preprocess_input = Classifiers.get('resnet18')
 
-      base_model = ResNet18(input_shape=(224,224,3), weights='imagenet', include_top=False)
+        base_model = ResNet18(input_shape=(224, 224, 3), weights='imagenet', include_top=False)
     
     else:
 
-      ResNet34, preprocess_input = Classifiers.get('resnet34')
+        ResNet34, preprocess_input = Classifiers.get('resnet34')
 
-      base_model = ResNet34(input_shape=(224,224,3), weights='imagenet', include_top=False)
+        base_model = ResNet34(input_shape=(224, 224, 3), weights='imagenet', include_top=False)
 
-    
     train_datagen = ImageDataGenerator(shear_range=0.2,
                                        zoom_range=0.05,
                                        width_shift_range=0.2,
                                        height_shift_range=0.2,
-                                       fill_mode='constant', 
+                                       fill_mode='constant',
                                        cval=255,
                                        preprocessing_function=preprocess_input)
 
@@ -259,51 +238,54 @@ def buildResNet(structure, augment=False):
     
     return base_model, test_datagen, test_datagen
 
-def initialize_model(model,
-                     augment,
-                     freeze=True,
-                     trainable='none', 
-                     dense_layers=1, 
-                     dense_hidden_size=64,
-                     dropout_rate=0, 
-                     l1_reg=0, 
-                     l2_reg=0, 
-                     optimizer_function='SGD', 
-                     learning_rate=0.001,
-                     momentum=0,
-                     nesterov=False,
-                     decay=0,
-                     print_model=False,
-                     **arg):
+def initialize_model(model, augment, freeze=True, trainable='none', dense_layers=1, dense_hidden_size=64,
+                     dropout_rate=0, l1_reg=0, l2_reg=0, optimizer_function='SGD', learning_rate=0.001,
+                     momentum=0, nesterov=False, decay=0, print_model=False, **arg):
     """
-    Builds CNN using pre-trained models with option to tune layers/regularization/optimizers and returns configured model. 
+    Builds CNN using pre-trained models with option to adjust architecture in terms of layers, regularization, and optimizers.
+    Returns configured model.
     """
-    
+    # Check model type and build correct model with corresponding data generators
     if model == 'ResNet-18':
-      pre_trained_model, train_datagen, test_datagen = buildResNet(model, augment)
+        pre_trained_model, train_datagen, test_datagen = buildResNet(model, augment)
     
     if model == 'ResNet-34':
-      pre_trained_model, train_datagen, test_datagen = buildResNet(model, augment)
+        pre_trained_model, train_datagen, test_datagen = buildResNet(model, augment)
 
-    
     if model == 'VGG16':
-      pre_trained_model, train_datagen, test_datagen = buildVGG16(augment)
+        pre_trained_model, train_datagen, test_datagen = buildVGG16(augment)
+
+    # Initially set all layers to not trainable
+    for layer in pre_trained_model.layers:
+        layer.trainable = False
     
-    if freeze:
-      #Freeze all layers in the imported CNN
-      for layer in pre_trained_model.layers:
-          layer.trainable = False
+    if trainable == 'everything':
+        # Unfreeze all layers in the imported CNN
+        for layer in pre_trained_model.layers:
+            layer.trainable = True
+
+    # ResNet last stage on trainable
+    if trainable == 'stage4':
+        for layer in pre_trained_model.layers:
+            if layer.name[:6] == 'stage4':
+                layer.trainable = True
     
-    # Unfreeze last conv layer from the imported CNN if we aim to train the last layer
-    if trainable=='last_layer':
+    # Unfreeze last conv layer of VGG16
+    if trainable == 'last_layer':
         pre_trained_model.layers[-2].trainable = True
+
+    # Unfreeze last block of VGG16
+    if trainable == 'last_block':
+        pre_trained_model.layers[-2].trainable = True
+        pre_trained_model.layers[-3].trainable = True
+        pre_trained_model.layers[-4].trainable = True
 
     average_pool = GlobalAveragePooling2D()(pre_trained_model.output)
     
     add_layer = average_pool
     
     for layer in range(dense_layers):
-        add_layer = Dense(dense_hidden_size, activation='relu', 
+        add_layer = Dense(dense_hidden_size, activation='relu',
                           kernel_regularizer=regularizers.l1_l2(l1=l1_reg, l2=l2_reg))(add_layer)
         
         if dropout_rate > 0:
@@ -323,8 +305,7 @@ def initialize_model(model,
 
     if optimizer_function == 'SGD':
         optimizer = optimizers.SGD(learning_rate=learning_rate, momentum=momentum, decay=decay, nesterov=nesterov)
-
-        
+  
     # Configure model for training
     model_final.compile(loss='binary_crossentropy',
                         optimizer=optimizer,
@@ -335,39 +316,91 @@ def initialize_model(model,
     
     return model_final, train_datagen, test_datagen
 
-def fit_model(name, train_gen, test_datagen, epochs, batch_size):
+# Fit model
+def fit_model(model, train_datagen, test_datagen, epochs, batch_size, train_dir, val_dir):
     """
-    Retuns History object after training model
+    Trains CNN and retuns History object.
     """
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=10)
     progress = TQDMNotebookCallback(leave_inner=False)
-    filepath = name + '-weights.best.hdf5'
+
+    filepath = 'best-model-{val_accuracy:.4f}-{epoch:02d}.hdf5'
     checkpoint = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max')
-    
-    #
+
+    # Create train/validation generators
     train_generator = train_datagen.flow_from_directory(train_dir,
-                                                        target_size=(224,224),
+                                                        target_size=(224, 224),
                                                         batch_size=batch_size,
                                                         class_mode='binary')
 
     validation_generator = test_datagen.flow_from_directory(val_dir,
-                                                            target_size=(224,224),
+                                                            target_size=(224, 224),
                                                             batch_size=batch_size,
                                                             class_mode='binary')
-
-
-    validation_generator
-
 
     # Store the keras callbacks
     callbacks = [progress, early_stopping, checkpoint]
 
     hist = model.fit_generator(train_generator,
-                              steps_per_epoch= (1400 // batch_size),
-                              callbacks=callbacks,
-                              validation_data=validation_generator, 
-                              validation_steps= (600 // batch_size),
-                              epochs=epochs,
-                              verbose=0)
+                               steps_per_epoch=(1400 // batch_size),
+                               callbacks=callbacks,
+                               validation_data=validation_generator,
+                               validation_steps=(600 // batch_size),
+                               epochs=epochs,
+                               verbose=0)
     return hist
+
+# Bayesian optimization function (hyperopt)
+def hyperopt_wrapper(params):
+    """
+    Wrapper functions that is used for bayesian optimization process with hyperopt
+    """
+    # Print params of the current trial
+    print('Params testing: ', params)
     
+    # Load the parameter into the embedding model
+    hyperopt_model, train_datagen, test_datagen = initialize_model(**params, **params['regularization'])
+        
+    # Fit the model and fetch the results
+    result = fit_model(hyperopt_model, train_datagen, test_datagen, epochs=50, batch_size=100)
+    
+    # Find the epoch with the best loss
+    loss = np.amin(result.history['val_loss'])
+    acc = np.amax(result.history['val_accuracy'])
+    
+    print(f'Best validation loss of epoch: {loss:.2f}')
+    print(f'Best validation accuracy of epoch: {acc:.2f}')
+
+    # Remove worst model if there are multiple stored
+    while len(glob('*hdf5')) > 1:
+        worst_model = sorted(glob('*hdf5'), reverse=True)[-1]
+        os.remove(worst_model)
+
+    # Return to hyperopt that the model is done
+    return {'loss': -acc, 'status': STATUS_OK, 'trained_model': hyperopt_model, 'params': params, 'history': result}
+
+# Manual tuning of models
+def manual_tune(params, batch_size=100, epochs=100):
+    """
+    Simple function used to manually a model for a given set of parameters.
+    """
+    model, train_datagen, test_datagen = initialize_model(**params)
+
+    batch_size = batch_size
+
+    hist = fit_model(model, train_datagen, test_datagen, epochs=epochs, batch_size=batch_size)
+
+    plotHistory(hist)
+
+    print(f'\n{params["model"]} model | batch size: {batch_size} | No data augmentation, enhanced images and the following params:')
+    print(params)
+
+# Other
+def clean_files():
+    """
+    Removes unnessary models from the Google Colab file structure
+    """
+    # Remove worst model if there are multiple stored
+    while len(glob('*hdf5')) > 0:
+        worst_model = sorted(glob('*hdf5'), reverse=True)[-1]
+        os.remove(worst_model)
