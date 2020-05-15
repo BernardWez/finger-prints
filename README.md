@@ -2,9 +2,9 @@
 
 ## Description
 
-The Sokoto Coventry Fingerprint Dataset (SOCOFing), available at https://www.kaggle.com/ruizgara/socofing, was used for this project. The aim of this project was to use fingerprint images to for a gender classification task. Transfer learning was applied using the following architectures: [VGG-16](https://keras.io/api/applications/vgg/#vgg16-function), [ResNet-18](https://github.com/qubvel/classification_models), and [ResNet-34](https://github.com/qubvel/classification_models).
+The Sokoto Coventry Fingerprint Dataset (SOCOFing), available at https://www.kaggle.com/ruizgara/socofing, was used for this project. The aim of this project is to use fingerprint images to classify gender. Transfer learning was applied using the following architectures: [VGG-16](https://keras.io/api/applications/vgg/#vgg16-function), [ResNet-18](https://github.com/qubvel/classification_models), and [ResNet-34](https://github.com/qubvel/classification_models).
 
-The goal was to improve upon the 75.2% accuracy achieved by [(Shehu et al., 2018)](https://ieeexplore.ieee.org/document/8614212). To find improvements additional pre-processings steps are taken, data augmentation is applied, and bayesian optimization is used to find the best hyperparameters.
+The goal was to improve upon the 75.2% accuracy achieved by [(Shehu et al., 2018)](https://ieeexplore.ieee.org/document/8614212). To find improvements additional pre-processings steps are taken, data augmentation is applied, and Bayesian optimization is used to find the best hyperparameters.
 
 ## Procedure
 
@@ -24,7 +24,7 @@ The dataset consists out of 6,000 fingerprint images from 600 people. From these
 
 ### Experimental set-up
 
-Both the enhanced and the regular dataset were used to train each of the model mentioned above. Furthermore, for both datasets models were trained with and without data augmentation (see augmentation examples below). In total 12 models were trained. During the training process [`hyperopt`](https://github.com/hyperopt/hyperopt) was leveraged to apply Bayesian optimization. The tuning process and hyperparameter settings will be discussed below.
+Both the enhanced and the regular dataset were used to train each of the models mentioned above. Furthermore, all models were also trained with and without data augmentation (see augmentation examples below). In total 12 models were trained. During the training process [`hyperopt`](https://github.com/hyperopt/hyperopt) was leveraged to apply Bayesian optimization. The tuning process and hyperparameter settings will be discussed below.
 
 ### Data augmentation
 
